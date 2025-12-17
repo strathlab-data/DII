@@ -53,4 +53,26 @@ references:
     start: 1689
     end: 1696
     doi: "10.1017/S1368980013002115"
+  - type: article
+    authors:
+      - family-names: Zhan
+        given-names: Jiada James
+      - family-names: Hodge
+        given-names: Rebecca A.
+      - family-names: Dunlop
+        given-names: Anne L.
+      - family-names: Lee
+        given-names: Matthew M.
+      - family-names: Bui
+        given-names: Linh
+      - family-names: Liang
+        given-names: Donghai
+      - family-names: Ferranti
+        given-names: Erin P.
+    title: "Dietaryindex: a user-friendly and versatile R package for standardizing dietary pattern analysis in epidemiological and clinical studies"
+    journal: "American Journal of Clinical Nutrition"
+    year: 2024
+    doi: "10.1016/j.ajcnut.2024.08.021"
+    url: "https://github.com/jamesjiadazhan/dietaryindex"
+    notes: "This Python implementation was inspired by and validated against the dietaryindex R package"
 

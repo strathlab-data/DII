@@ -344,9 +344,22 @@ Please also cite the original DII development paper:
 
 > Shivappa N, Steck SE, Hurley TG, Hussey JR, Hébert JR. Designing and developing a literature-derived, population-based dietary inflammatory index. *Public Health Nutr*. 2014;17(8):1689-1696. doi:10.1017/S1368980013002115
 
-### Related Work
+### dietaryindex R Package
 
-This implementation was inspired by and validated against the excellent [dietaryindex R package](https://github.com/jamesjiadazhan/dietaryindex) by Jiada (James) Zhan, which provides DII and other dietary index calculations for R users.
+This implementation was inspired by and validated against the [dietaryindex R package](https://github.com/jamesjiadazhan/dietaryindex). If you use this Python package, please also cite their excellent work:
+
+> Zhan JJ, Hodge RA, Dunlop AL, et al. Dietaryindex: a user-friendly and versatile R package for standardizing dietary pattern analysis in epidemiological and clinical studies. *Am J Clin Nutr*. 2024. doi:10.1016/j.ajcnut.2024.08.021
+
+```bibtex
+@article{zhan2024dietaryindex,
+  author = {Zhan, Jiada James and Hodge, Rebecca A and Dunlop, Anne L and Lee, Matthew M and Bui, Linh and Liang, Donghai and Ferranti, Erin P},
+  title = {Dietaryindex: a user-friendly and versatile R package for standardizing dietary pattern analysis in epidemiological and clinical studies},
+  journal = {American Journal of Clinical Nutrition},
+  year = {2024},
+  doi = {10.1016/j.ajcnut.2024.08.021},
+  url = {https://github.com/jamesjiadazhan/dietaryindex}
+}
+```
 
 ---
 
