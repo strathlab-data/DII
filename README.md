@@ -12,12 +12,21 @@
 The **Dietary Inflammatory Index (DII)** is a literature-derived, population-based index designed to assess the inflammatory potential of an individual's diet. This Python package provides a validated, efficient implementation for calculating DII scores from nutrient intake data.
 
 **Key Features:**
-- Vectorized calculations for high performance on large datasets
-- Support for all 45 DII food parameters
-- Graceful handling of missing nutrients
-- Detailed output option for per-nutrient contribution analysis
-- Bundled reference data (no external files required)
-- Comprehensive validation against known test cases
+- 🚀 Vectorized calculations for high performance on large datasets
+- 📊 Support for all 45 DII food parameters
+- 🔧 Graceful handling of missing nutrients
+- 📈 Built-in visualization tools
+- 💻 Command-line interface for quick analysis
+- 📦 Bundled reference data (no external files required)
+- ✅ Comprehensive validation against known test cases
+
+### Sample Output
+
+<p align="center">
+  <img src="docs/images/dii_distribution.png" alt="DII Score Distribution" width="700">
+</p>
+
+*DII score distribution from NHANES 2017-2018 data (n=13,580). Over half of U.S. adults have pro-inflammatory diets.*
 
 ### Interpretation
 
@@ -209,6 +218,57 @@ load_reference_table(custom_path: str = None) -> pd.DataFrame
 ```
 
 Load the DII reference table with inflammatory weights and global statistics.
+
+---
+
+## Visualization
+
+The package includes built-in visualization tools (requires `matplotlib`):
+
+```bash
+pip install matplotlib
+```
+
+```python
+from dii import calculate_dii, calculate_dii_detailed
+from dii import plot_dii_distribution, plot_nutrient_contributions
+
+# Calculate DII
+results = calculate_dii(nutrients)
+detailed = calculate_dii_detailed(nutrients)
+
+# Generate plots
+plot_dii_distribution(results, save_path="dii_distribution.png")
+plot_nutrient_contributions(detailed, save_path="nutrient_contributions.png")
+```
+
+### Nutrient Contributions Analysis
+
+<p align="center">
+  <img src="docs/images/nutrient_contributions.png" alt="Nutrient Contributions" width="700">
+</p>
+
+*Average nutrient contributions to DII in NHANES data. Green bars indicate anti-inflammatory contributions; red bars indicate pro-inflammatory contributions.*
+
+---
+
+## Command-Line Interface
+
+Run DII calculations directly from the terminal:
+
+```bash
+# Calculate DII scores
+python -m dii input_data.csv -o results.csv
+
+# Include detailed breakdown
+python -m dii input_data.csv -o results.csv --detailed
+
+# List supported nutrients
+python -m dii --nutrients
+
+# Show help
+python -m dii --help
+```
 
 ---
 
