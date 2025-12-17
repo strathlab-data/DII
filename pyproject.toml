@@ -62,11 +62,11 @@ Repository = "https://github.com/strathlab-data/DII"
 Issues = "https://github.com/strathlab-data/DII/issues"
 
 [tool.setuptools.packages.find]
-where = ["."]
+where = ["src"]
 include = ["dii*"]
 
 [tool.setuptools.package-data]
-dii = ["data/*.csv"]
+"dii" = ["data/*.csv"]
 
 [tool.black]
 line-length = 100
