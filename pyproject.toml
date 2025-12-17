@@ -61,6 +61,9 @@ Documentation = "https://github.com/strathlab-data/DII#readme"
 Repository = "https://github.com/strathlab-data/DII"
 Issues = "https://github.com/strathlab-data/DII/issues"
 
+[project.scripts]
+dii = "dii.__main__:main"
+
 [tool.setuptools.packages.find]
 where = ["src"]
 include = ["dii*"]

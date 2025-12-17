@@ -44,14 +44,31 @@ __version__ = "1.0.0"
 __author__ = "Ted Clark, Larissa Strath"
 __email__ = "tedclark94@gmail.com"
 
+# Core calculation functions
 from .calculator import calculate_dii, calculate_dii_detailed
+
+# Reference table utilities
 from .reference import load_reference_table, get_available_nutrients
 
+# Data I/O utilities
+from .reader import load_nutrient_data, summarize_input_data, validate_input_file
+from .viewer import display_results, display_nutrients_table
+
 __all__ = [
+    # Core
     "calculate_dii",
     "calculate_dii_detailed",
+    # Reference
     "load_reference_table",
     "get_available_nutrients",
+    # Reader
+    "load_nutrient_data",
+    "summarize_input_data",
+    "validate_input_file",
+    # Viewer
+    "display_results",
+    "display_nutrients_table",
+    # Metadata
     "__version__",
 ]
 
