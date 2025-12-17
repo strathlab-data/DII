@@ -1,0 +1,23 @@
+# Include data files
+include src/dii/data/*.csv
+
+# Include documentation
+include README.md
+include LICENSE
+include CITATION.cff
+include CHANGELOG.md
+
+# Include config files
+include pyproject.toml
+include setup.cfg
+
+# Exclude development files
+exclude .gitignore
+exclude .editorconfig
+recursive-exclude tests *
+recursive-exclude examples *
+recursive-exclude templates *
+recursive-exclude docs *
+recursive-exclude * __pycache__
+recursive-exclude * *.py[cod]
+
