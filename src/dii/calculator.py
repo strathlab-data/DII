@@ -88,6 +88,8 @@ def calculate_dii(
 
     Raises
     ------
+    TypeError
+        If nutrient_data is not a pandas DataFrame.
     ValueError
         If no DII nutrients are found in the input data columns.
 
@@ -120,6 +122,14 @@ def calculate_dii(
     >>> print(detailed.columns.tolist())
     ['SEQN', 'Fiber', 'Fiber_zscore', 'Fiber_percentile', 'Fiber_contribution', ...]
     """
+    # === INPUT VALIDATION ===
+    # Type check: must be a DataFrame
+    if not isinstance(nutrient_data, pd.DataFrame):
+        raise TypeError(
+            f"nutrient_data must be a pandas DataFrame, got {type(nutrient_data).__name__}. "
+            "Example: calculate_dii(pd.DataFrame({'Fiber': [18.8], 'Alcohol': [13.98]}))"
+        )
+    
     if reference_df is None:
         reference_df = load_reference_table()
 
@@ -138,6 +148,40 @@ def calculate_dii(
             "Ensure column names match the reference nutrients "
             "(e.g., 'Fiber', 'Alcohol', 'Vitamin C'). "
             "Use get_available_nutrients() to see the full list."
+        )
+    
+    # === NUMERIC VALIDATION ===
+    # Ensure nutrient columns contain numeric data
+    non_numeric_cols = []
+    for col in matched_nutrients:
+        if col in nutrient_data.columns:
+            if not pd.api.types.is_numeric_dtype(nutrient_data[col]):
+                # Try to convert to numeric
+                try:
+                    nutrient_data[col] = pd.to_numeric(nutrient_data[col], errors='coerce')
+                except Exception:
+                    non_numeric_cols.append(col)
+    
+    if non_numeric_cols:
+        import warnings
+        warnings.warn(
+            f"Non-numeric data found in columns {non_numeric_cols}. "
+            "Values were coerced to numeric (non-convertible values become NaN).",
+            UserWarning
+        )
+    
+    # === COVERAGE WARNING ===
+    # Warn if nutrient coverage is low (< 25%)
+    total_nutrients = len(reference_df)
+    coverage_pct = len(matched_nutrients) / total_nutrients * 100
+    if coverage_pct < 25:
+        import warnings
+        warnings.warn(
+            f"Low nutrient coverage: only {len(matched_nutrients)}/{total_nutrients} "
+            f"DII nutrients found ({coverage_pct:.1f}%). "
+            "DII scores may be less reliable with limited nutrients. "
+            "Consider adding more nutrient columns if available.",
+            UserWarning
         )
 
     # Filter reference to matched nutrients only

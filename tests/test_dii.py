@@ -135,6 +135,8 @@ class TestDIICalculation:
 
     def test_missing_nutrients_handled(self):
         """Test that missing nutrients are handled gracefully."""
+        import warnings
+        
         # Data with only a subset of nutrients
         df = pd.DataFrame({
             "SEQN": [1, 2],
@@ -142,21 +144,28 @@ class TestDIICalculation:
             "Alcohol": [13.98, 0.0],
         })
         
-        # Should not raise an error
-        result = calculate_dii(df, id_column="SEQN")
+        # Suppress expected low-coverage warning for this test
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", UserWarning)
+            result = calculate_dii(df, id_column="SEQN")
         
         assert len(result) == 2
         assert "DII_score" in result.columns
 
     def test_nan_handling(self):
         """Test that NaN values are handled correctly."""
+        import warnings
+        
         df = pd.DataFrame({
             "SEQN": [1, 2],
             "Fiber": [18.8, np.nan],
             "Alcohol": [np.nan, 13.98],
         })
         
-        result = calculate_dii(df, id_column="SEQN")
+        # Suppress expected low-coverage warning for this test
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", UserWarning)
+            result = calculate_dii(df, id_column="SEQN")
         
         # Should complete without error
         assert len(result) == 2
@@ -200,16 +209,23 @@ class TestEdgeCases:
 
     def test_empty_dataframe(self):
         """Test handling of empty DataFrame."""
+        import warnings
+        
         df = pd.DataFrame({
             "SEQN": [],
             "Fiber": [],
         })
         
-        result = calculate_dii(df, id_column="SEQN")
+        # Suppress expected low-coverage warning for this test
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", UserWarning)
+            result = calculate_dii(df, id_column="SEQN")
         assert len(result) == 0
 
     def test_single_nutrient(self):
         """Test calculation with only one nutrient."""
+        import warnings
+        
         ref = load_reference_table()
         fiber_row = ref[ref["nutrient"] == "Fiber"].iloc[0]
         
@@ -218,10 +234,125 @@ class TestEdgeCases:
             "Fiber": [fiber_row["global_mean"]],  # At mean
         })
         
-        result = calculate_dii(df, id_column="SEQN")
+        # Suppress expected low-coverage warning for this test
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", UserWarning)
+            result = calculate_dii(df, id_column="SEQN")
         
         # With only one nutrient at mean, DII contribution should be 0
         assert abs(result["DII_score"].iloc[0]) < 0.0001
+
+
+class TestInputValidation:
+    """Tests for input validation and error handling."""
+
+    def test_non_dataframe_input_raises_typeerror(self):
+        """Test that passing non-DataFrame raises TypeError with helpful message."""
+        # List input
+        with pytest.raises(TypeError, match="must be a pandas DataFrame"):
+            calculate_dii([1, 2, 3])
+        
+        # Dict input
+        with pytest.raises(TypeError, match="must be a pandas DataFrame"):
+            calculate_dii({"Fiber": [18.8]})
+        
+        # None input
+        with pytest.raises(TypeError, match="must be a pandas DataFrame"):
+            calculate_dii(None)
+
+    def test_low_coverage_warning(self):
+        """Test that low nutrient coverage triggers a warning."""
+        import warnings
+        
+        # Only 2 out of 45 nutrients = ~4% coverage
+        df = pd.DataFrame({
+            "SEQN": [1],
+            "Fiber": [18.8],
+            "Alcohol": [13.98],
+        })
+        
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            result = calculate_dii(df, id_column="SEQN")
+            
+            # Check low coverage warning was issued
+            assert any("Low nutrient coverage" in str(warning.message) for warning in w)
+        
+        # Should still compute
+        assert "DII_score" in result.columns
+
+    def test_high_coverage_no_warning(self):
+        """Test that high nutrient coverage does not trigger warning."""
+        import warnings
+        
+        ref = load_reference_table()
+        
+        # Create data with all 45 nutrients (100% coverage)
+        data = {"SEQN": [1]}
+        for _, row in ref.iterrows():
+            data[row["nutrient"]] = [row["global_mean"]]
+        
+        df = pd.DataFrame(data)
+        
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            result = calculate_dii(df, id_column="SEQN")
+            
+            # No low coverage warning should be issued
+            coverage_warnings = [x for x in w if "Low nutrient coverage" in str(x.message)]
+            assert len(coverage_warnings) == 0
+        
+        assert "DII_score" in result.columns
+
+    def test_whitespace_in_column_names(self):
+        """Test that whitespace in column names is handled."""
+        import warnings
+        
+        df = pd.DataFrame({
+            "SEQN": [1],
+            "  Fiber  ": [18.8],  # Leading/trailing whitespace
+            "Alcohol ": [13.98],  # Trailing whitespace
+        })
+        
+        # Suppress expected low-coverage warning for this test
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", UserWarning)
+            result = calculate_dii(df, id_column="SEQN")
+        assert len(result) == 1
+        assert "DII_score" in result.columns
+
+
+class TestCLI:
+    """Tests for command-line interface."""
+
+    def test_cli_help(self):
+        """Test that CLI --help works."""
+        import subprocess
+        import sys
+        
+        result = subprocess.run(
+            [sys.executable, "-m", "dii", "--help"],
+            capture_output=True,
+            text=True,
+        )
+        
+        assert result.returncode == 0
+        assert "usage" in result.stdout.lower() or "dii" in result.stdout.lower()
+
+    def test_cli_nutrients_flag(self):
+        """Test that CLI --nutrients lists supported nutrients."""
+        import subprocess
+        import sys
+        
+        result = subprocess.run(
+            [sys.executable, "-m", "dii", "--nutrients"],
+            capture_output=True,
+            text=True,
+        )
+        
+        assert result.returncode == 0
+        # Should list some known nutrients
+        assert "Fiber" in result.stdout or "fiber" in result.stdout.lower()
 
 
 if __name__ == "__main__":
