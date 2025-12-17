@@ -1,0 +1,56 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+type: software
+title: "dii-calculator: Dietary Inflammatory Index Calculator for Python"
+version: 1.0.0
+date-released: 2025-06-01
+url: "https://github.com/tedclark94/dii-calculator"
+repository-code: "https://github.com/tedclark94/dii-calculator"
+license: MIT
+authors:
+  - family-names: Clark
+    given-names: Ted
+    email: tedclark94@gmail.com
+    affiliation: "University of Florida, Department of Health Outcomes and Biomedical Informatics"
+  - family-names: Strath
+    given-names: Larissa
+    email: larissastrath@ufl.edu
+    affiliation: "University of Florida, Department of Health Outcomes and Biomedical Informatics"
+    orcid: "https://orcid.org/0000-0002-9616-0177"
+keywords:
+  - dietary inflammatory index
+  - DII
+  - nutrition
+  - epidemiology
+  - inflammation
+  - dietary assessment
+  - NHANES
+  - Python
+abstract: >-
+  A validated Python implementation of the Dietary Inflammatory Index (DII)
+  for nutritional epidemiology research. This package provides efficient,
+  vectorized calculations for assessing the inflammatory potential of
+  dietary intake patterns based on the methodology established by
+  Shivappa et al. (2014).
+references:
+  - type: article
+    authors:
+      - family-names: Shivappa
+        given-names: Nitin
+      - family-names: Steck
+        given-names: Susan E.
+      - family-names: Hurley
+        given-names: Thomas G.
+      - family-names: Hussey
+        given-names: James R.
+      - family-names: Hébert
+        given-names: James R.
+    title: "Designing and developing a literature-derived, population-based dietary inflammatory index"
+    journal: "Public Health Nutrition"
+    year: 2014
+    volume: 17
+    issue: 8
+    start: 1689
+    end: 1696
+    doi: "10.1017/S1368980013002115"
+

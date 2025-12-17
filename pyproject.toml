@@ -1,0 +1,84 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dii-calculator"
+version = "1.0.0"
+description = "A Python implementation of the Dietary Inflammatory Index (DII) calculator for nutritional epidemiology research"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.8"
+authors = [
+    {name = "Ted Clark", email = "tedclark94@gmail.com"},
+    {name = "Larissa Strath", email = "larissastrath@ufl.edu"},
+]
+maintainers = [
+    {name = "Ted Clark", email = "tedclark94@gmail.com"},
+]
+keywords = [
+    "dietary inflammatory index",
+    "DII",
+    "nutrition",
+    "epidemiology",
+    "inflammation",
+    "dietary assessment",
+    "NHANES",
+    "public health",
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Healthcare Industry",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Medical Science Apps.",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
+]
+dependencies = [
+    "pandas>=1.3.0",
+    "numpy>=1.20.0",
+    "scipy>=1.7.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "black>=23.0.0",
+    "mypy>=1.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/tedclark94/dii-calculator"
+Documentation = "https://github.com/tedclark94/dii-calculator#readme"
+Repository = "https://github.com/tedclark94/dii-calculator"
+Issues = "https://github.com/tedclark94/dii-calculator/issues"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["dii*"]
+
+[tool.setuptools.package-data]
+dii = ["data/*.csv"]
+
+[tool.black]
+line-length = 100
+target-version = ["py38", "py39", "py310", "py311", "py312"]
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --tb=short"
+

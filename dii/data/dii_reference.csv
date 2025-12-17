@@ -1,0 +1,47 @@
+nutrient,weight,global_mean,global_sd
+Alcohol,-0.278,13.98,3.72
+vitamin B12,0.106,5.15,2.7
+vitamin B6,-0.365,1.47,0.74
+Beta-carotene,-0.584,3718,1720
+Caffeine,-0.11,8.05,6.67
+Carbohydrate,0.097,272.2,40
+Cholesterol,0.11,279.4,51.2
+Energy,0.18,2056,338
+Eugenol,-0.14,0.01,0.08
+Total fat,0.298,71.4,19.4
+Fiber,-0.663,18.8,4.9
+Folic acid,-0.19,273,70.7
+Garlic,-0.412,4.35,2.9
+Ginger,-0.453,59,63.2
+Iron,0.032,13.35,3.71
+Magnesium,-0.484,310.1,139.4
+MUFA,-0.009,27,6.1
+Niacin,-0.246,25.9,11.77
+n-3 fatty acid,-0.436,1.06,1.06
+n-6 fatty acid,-0.159,10.8,7.5
+Onion,-0.301,35.9,18.4
+Protein,0.021,79.4,13.9
+PUFA,-0.337,13.88,3.76
+Riboflavin,-0.068,1.7,0.79
+Saffron,-0.14,0.37,1.78
+Saturated fat,0.373,28.6,8
+Selenium,-0.191,67,25.1
+Thiamin,-0.098,1.7,0.66
+Trans fat,0.229,3.15,3.75
+Turmeric,-0.785,533.6,754.3
+Vitamin A,-0.401,983.9,518.6
+Vitamin C,-0.424,118.2,43.46
+Vitamin D,-0.446,6.26,2.21
+Vitamin E,-0.419,8.73,1.49
+Zinc,-0.313,9.84,2.19
+Green/black tea,-0.536,1.69,1.53
+Flavan-3-ol,-0.415,95.8,85.9
+Flavones,-0.616,1.55,0.07
+Flavonols,-0.467,17.7,6.79
+Flavonones,-0.25,11.7,3.82
+Anthocyanidins,-0.131,18.05,21.14
+Isoflavones,-0.593,1.2,0.2
+Pepper,-0.131,10,7.07
+Thyme/oregano,-0.102,0.33,0.99
+Rosemary,-0.013,1,15
+
