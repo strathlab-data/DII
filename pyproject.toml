@@ -56,10 +56,10 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/tedclark94/dii-calculator"
-Documentation = "https://github.com/tedclark94/dii-calculator#readme"
-Repository = "https://github.com/tedclark94/dii-calculator"
-Issues = "https://github.com/tedclark94/dii-calculator/issues"
+Homepage = "https://github.com/strathlab-data/DII"
+Documentation = "https://github.com/strathlab-data/DII#readme"
+Repository = "https://github.com/strathlab-data/DII"
+Issues = "https://github.com/strathlab-data/DII/issues"
 
 [tool.setuptools.packages.find]
 where = ["."]

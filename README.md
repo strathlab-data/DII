@@ -40,7 +40,7 @@ Scores typically range from approximately **-8** (maximally anti-inflammatory) t
 ### Option 1: Quick Install from GitHub
 
 ```bash
-pip install git+https://github.com/tedclark94/dii-calculator.git
+pip install git+https://github.com/strathlab-data/DII.git
 ```
 
 ### Option 2: Full Development Setup (Recommended for Researchers)
@@ -50,7 +50,7 @@ This creates an isolated environment that won't conflict with other Python proje
 **Windows (PowerShell):**
 ```powershell
 # Clone the repository
-git clone https://github.com/tedclark94/dii-calculator.git
+git clone https://github.com/strathlab-data/DII.git
 cd dii-calculator
 
 # Create virtual environment
@@ -67,7 +67,7 @@ python -c "from dii import calculate_dii; print('Installation successful!')"
 **macOS / Linux:**
 ```bash
 # Clone the repository
-git clone https://github.com/tedclark94/dii-calculator.git
+git clone https://github.com/strathlab-data/DII.git
 cd dii-calculator
 
 # Create virtual environment
@@ -274,7 +274,7 @@ If you use this package in your research, please cite:
   author = {Clark, Ted and Strath, Larissa},
   title = {dii-calculator: Dietary Inflammatory Index Calculator for Python},
   year = {2025},
-  url = {https://github.com/tedclark94/dii-calculator}
+  url = {https://github.com/strathlab-data/DII}
 }
 ```
 

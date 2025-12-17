@@ -4,8 +4,8 @@ type: software
 title: "dii-calculator: Dietary Inflammatory Index Calculator for Python"
 version: 1.0.0
 date-released: 2025-06-01
-url: "https://github.com/tedclark94/dii-calculator"
-repository-code: "https://github.com/tedclark94/dii-calculator"
+url: "https://github.com/strathlab-data/DII"
+repository-code: "https://github.com/strathlab-data/DII"
 license: MIT
 authors:
   - family-names: Clark
