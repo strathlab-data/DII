@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "dii-calculator"
-version = "1.0.4"
+version = "1.0.5"
 description = "A Python implementation of the Dietary Inflammatory Index (DII) calculator for nutritional epidemiology research"
 readme = "README.md"
 license = "MIT"

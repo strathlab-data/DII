@@ -3,6 +3,8 @@ Visualization module for the DII Calculator.
 
 This module provides plotting functions for visualizing DII scores
 and nutrient contributions.
+
+Note: matplotlib is a required dependency of the dii-calculator package.
 """
 
 from pathlib import Path
@@ -10,23 +12,8 @@ from typing import Optional, Union, List
 
 import pandas as pd
 import numpy as np
-
-# Check if matplotlib is available
-try:
-    import matplotlib.pyplot as plt
-    import matplotlib.patches as mpatches
-    HAS_MATPLOTLIB = True
-except ImportError:
-    HAS_MATPLOTLIB = False
-
-
-def _check_matplotlib():
-    """Raise error if matplotlib is not installed."""
-    if not HAS_MATPLOTLIB:
-        raise ImportError(
-            "Visualization requires matplotlib. "
-            "Install it with: pip install matplotlib"
-        )
+import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
 
 
 def plot_dii_distribution(
@@ -66,7 +53,6 @@ def plot_dii_distribution(
     >>> results = calculate_dii(nutrient_data)
     >>> plot_dii_distribution(results)
     """
-    _check_matplotlib()
     
     # Extract scores
     if isinstance(dii_scores, pd.DataFrame):
@@ -169,8 +155,6 @@ def plot_nutrient_contributions(
     matplotlib.figure.Figure or None
         The figure object if show=False, otherwise None.
     """
-    _check_matplotlib()
-    
     # Find DII contribution columns (could be _contribution or _dii)
     contrib_cols = [col for col in detailed_results.columns 
                     if col.endswith('_contribution')]
@@ -266,8 +250,6 @@ def plot_dii_categories_pie(
     matplotlib.figure.Figure or None
         The figure object if show=False, otherwise None.
     """
-    _check_matplotlib()
-    
     # Extract scores
     if isinstance(dii_scores, pd.DataFrame):
         if 'DII_score' in dii_scores.columns:
