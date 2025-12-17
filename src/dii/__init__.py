@@ -40,7 +40,7 @@ Authors
 University of Florida, Department of Health Outcomes and Biomedical Informatics
 """
 
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 __author__ = "Ted Clark, Larissa Strath"
 __email__ = "tedclark94@gmail.com"
 
@@ -54,16 +54,12 @@ from .reference import load_reference_table, get_available_nutrients
 from .reader import load_nutrient_data, summarize_input_data, validate_input_file
 from .viewer import display_results, display_nutrients_table
 
-# Visualization (optional - requires matplotlib)
-try:
-    from .visualization import (
-        plot_dii_distribution,
-        plot_nutrient_contributions,
-        plot_dii_categories_pie,
-    )
-    _HAS_VIZ = True
-except ImportError:
-    _HAS_VIZ = False
+# Visualization
+from .visualization import (
+    plot_dii_distribution,
+    plot_nutrient_contributions,
+    plot_dii_categories_pie,
+)
 
 __all__ = [
     # Core
@@ -86,8 +82,4 @@ __all__ = [
     # Metadata
     "__version__",
 ]
-
-# Only export viz functions if matplotlib available
-if not _HAS_VIZ:
-    __all__ = [x for x in __all__ if not x.startswith('plot_')]
 

@@ -104,6 +104,7 @@ Automatically installed:
 - pandas ≥ 1.3.0
 - numpy ≥ 1.20.0
 - scipy ≥ 1.7.0
+- matplotlib ≥ 3.5.0
 
 ---
 
@@ -223,11 +224,7 @@ Load the DII reference table with inflammatory weights and global statistics.
 
 ## Visualization
 
-The package includes built-in visualization tools (requires `matplotlib`):
-
-```bash
-pip install matplotlib
-```
+The package includes built-in visualization tools:
 
 ```python
 from dii import calculate_dii, calculate_dii_detailed
