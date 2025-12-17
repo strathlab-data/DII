@@ -12,13 +12,13 @@
 The **Dietary Inflammatory Index (DII)** is a literature-derived, population-based index designed to assess the inflammatory potential of an individual's diet. This Python package provides a validated, efficient implementation for calculating DII scores from nutrient intake data.
 
 **Key Features:**
-- 🚀 Vectorized calculations for high performance on large datasets
-- 📊 Support for all 45 DII food parameters
-- 🔧 Graceful handling of missing nutrients
-- 📈 Built-in visualization tools
-- 💻 Command-line interface for quick analysis
-- 📦 Bundled reference data (no external files required)
-- ✅ Comprehensive validation against known test cases
+- Vectorized calculations for high performance on large datasets
+- Support for all 45 DII food parameters
+- Graceful handling of missing nutrients
+- Built-in visualization tools
+- Command-line interface for quick analysis
+- Bundled reference data (no external files required)
+- Validated against 13,580 NHANES participants with perfect match to original calculations
 
 ### Sample Output
 
