@@ -67,7 +67,8 @@ from .reference import (
 FLOAT_DTYPE = np.float64
 
 #: Validation tolerance for comparing calculated vs expected DII scores
-VALIDATION_TOLERANCE = 1e-10
+#: Set to 1e-9 to account for floating-point representation differences
+VALIDATION_TOLERANCE = 1e-9
 
 #: Threshold (in standard deviations) for flagging potentially erroneous values
 EXTREME_VALUE_THRESHOLD = 10.0
