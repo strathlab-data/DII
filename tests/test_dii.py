@@ -12,11 +12,17 @@ Test cases:
 - SEQN 3: Pro-inflammatory profile → DII should be +7.004394
 """
 
+import tempfile
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
 import pytest
+from scipy.stats import norm
 
 from dii import calculate_dii, calculate_dii_detailed, get_available_nutrients, load_reference_table
+from dii.reader import load_nutrient_data, validate_input_file, summarize_input_data
+from dii.reference import validate_nutrient_columns
 
 
 class TestReferenceTable:
@@ -169,8 +175,29 @@ class TestDIICalculation:
         
         # Should complete without error
         assert len(result) == 2
-        # Scores should not be NaN
+        # Scores should not be NaN (partial data still produces valid DII)
         assert not result["DII_score"].isna().all()
+
+    def test_all_nan_returns_nan(self):
+        """Test that all-NaN nutrient values return NaN DII score."""
+        import warnings
+        
+        df = pd.DataFrame({
+            "SEQN": [1, 2],
+            "Fiber": [np.nan, 18.8],
+            "Alcohol": [np.nan, 13.98],
+        })
+        
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", UserWarning)
+            result = calculate_dii(df, id_column="SEQN")
+        
+        # Row 1: All NaN → DII should be NaN
+        assert pd.isna(result["DII_score"].iloc[0]), \
+            "All-NaN row should return NaN DII score"
+        # Row 2: Valid data → DII should NOT be NaN
+        assert not pd.isna(result["DII_score"].iloc[1]), \
+            "Row with valid data should return numeric DII score"
 
     def test_multiple_participants(self):
         """Test calculation for multiple participants."""
@@ -322,6 +349,323 @@ class TestInputValidation:
         assert "DII_score" in result.columns
 
 
+class TestReaderModule:
+    """Tests for the reader module functions."""
+
+    def test_validate_input_file_not_found(self):
+        """Test that FileNotFoundError is raised for missing files."""
+        with pytest.raises(FileNotFoundError, match="Input file not found"):
+            validate_input_file("nonexistent_file.csv")
+
+    def test_validate_input_file_not_csv(self, tmp_path):
+        """Test that ValueError is raised for non-CSV files."""
+        txt_file = tmp_path / "data.txt"
+        txt_file.write_text("some data")
+        
+        with pytest.raises(ValueError, match="must be a CSV file"):
+            validate_input_file(txt_file)
+
+    def test_validate_input_file_success(self, tmp_path):
+        """Test that valid CSV file passes validation."""
+        csv_file = tmp_path / "data.csv"
+        csv_file.write_text("col1,col2\n1,2")
+        
+        # Should not raise
+        validate_input_file(csv_file)
+
+    def test_load_nutrient_data_success(self, tmp_path):
+        """Test loading a valid CSV file."""
+        csv_file = tmp_path / "nutrients.csv"
+        csv_file.write_text("SEQN,Fiber,Alcohol\n1,18.8,13.98")
+        
+        df = load_nutrient_data(csv_file)
+        assert len(df) == 1
+        assert "Fiber" in df.columns
+
+    def test_load_nutrient_data_not_found(self):
+        """Test FileNotFoundError for missing file."""
+        with pytest.raises(FileNotFoundError):
+            load_nutrient_data("nonexistent.csv")
+
+    def test_summarize_input_data(self):
+        """Test the summarize_input_data function."""
+        df = pd.DataFrame({
+            "SEQN": [1, 2],
+            "Fiber": [18.8, 25.0],
+            "Alcohol": [13.98, 0.0],
+            "Other_Column": [100, 200],
+        })
+        
+        summary = summarize_input_data(df)
+        
+        assert summary["n_rows"] == 2
+        assert summary["n_columns"] == 4
+        assert "Fiber" in summary["nutrients_found"]
+        assert "Alcohol" in summary["nutrients_found"]
+        assert len(summary["nutrients_found"]) == 2
+        assert len(summary["nutrients_missing"]) == 43  # 45 - 2
+        assert 0 < summary["coverage"] < 10  # About 4.4%
+
+
+class TestReferenceModuleExtended:
+    """Extended tests for reference module."""
+
+    def test_custom_reference_table_not_found(self):
+        """Test FileNotFoundError for missing custom reference."""
+        with pytest.raises(FileNotFoundError, match="Reference table not found"):
+            load_reference_table("nonexistent_reference.csv")
+
+    def test_custom_reference_table_missing_columns(self, tmp_path):
+        """Test ValueError when custom reference missing required columns."""
+        csv_file = tmp_path / "bad_ref.csv"
+        csv_file.write_text("nutrient,weight\nFiber,-0.663")  # Missing global_mean, global_sd
+        
+        with pytest.raises(ValueError, match="missing required columns"):
+            load_reference_table(str(csv_file))
+
+    def test_custom_reference_table_success(self, tmp_path):
+        """Test loading a valid custom reference table."""
+        csv_file = tmp_path / "custom_ref.csv"
+        csv_file.write_text("nutrient,weight,global_mean,global_sd\nFiber,-0.663,18.8,4.9")
+        
+        ref = load_reference_table(str(csv_file))
+        assert len(ref) == 1
+        assert ref["nutrient"].iloc[0] == "Fiber"
+
+    def test_validate_nutrient_columns(self):
+        """Test the validate_nutrient_columns function."""
+        import io
+        import sys
+        
+        # Capture stdout
+        captured = io.StringIO()
+        sys.stdout = captured
+        
+        matched, missing = validate_nutrient_columns(
+            ["Fiber", "Alcohol", "SEQN", "Unknown"],
+            verbose=True
+        )
+        
+        sys.stdout = sys.__stdout__
+        
+        assert "Fiber" in matched
+        assert "Alcohol" in matched
+        assert "SEQN" not in matched  # Not a nutrient
+        assert "Unknown" not in matched
+        assert len(matched) == 2
+        assert len(missing) == 43
+
+    def test_validate_nutrient_columns_silent(self):
+        """Test validate_nutrient_columns with verbose=False."""
+        import io
+        import sys
+        
+        captured = io.StringIO()
+        sys.stdout = captured
+        
+        matched, _ = validate_nutrient_columns(
+            ["Fiber"],
+            verbose=False
+        )
+        
+        sys.stdout = sys.__stdout__
+        output = captured.getvalue()
+        
+        assert "Fiber" in matched
+        assert output == ""  # No output when verbose=False
+
+
+class TestMathematicalValidation:
+    """Tests to validate the mathematical correctness of DII calculations."""
+
+    def test_zscore_calculation(self):
+        """Test that z-scores are calculated correctly."""
+        ref = load_reference_table()
+        fiber_row = ref[ref["nutrient"] == "Fiber"].iloc[0]
+        mean, sd = fiber_row["global_mean"], fiber_row["global_sd"]
+        
+        # Test value exactly 1 SD above mean
+        test_value = mean + sd
+        expected_zscore = 1.0
+        
+        df = pd.DataFrame({"Fiber": [test_value]})
+        
+        import warnings
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            result = calculate_dii_detailed(df)
+        
+        actual_zscore = result["Fiber_zscore"].iloc[0]
+        assert abs(actual_zscore - expected_zscore) < 1e-10
+
+    def test_centered_percentile_at_mean(self):
+        """Test that percentile is 0 when value equals global mean."""
+        ref = load_reference_table()
+        fiber_row = ref[ref["nutrient"] == "Fiber"].iloc[0]
+        
+        df = pd.DataFrame({"Fiber": [fiber_row["global_mean"]]})
+        
+        import warnings
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            result = calculate_dii_detailed(df)
+        
+        # Percentile should be 0 at mean (z=0 → 2*Φ(0)-1 = 2*0.5-1 = 0)
+        assert abs(result["Fiber_percentile"].iloc[0]) < 1e-10
+
+    def test_centered_percentile_formula(self):
+        """Test that centered percentile matches 2*Φ(z)-1 formula."""
+        ref = load_reference_table()
+        fiber_row = ref[ref["nutrient"] == "Fiber"].iloc[0]
+        mean, sd = fiber_row["global_mean"], fiber_row["global_sd"]
+        
+        # Test at z = 1.96 (97.5th percentile)
+        test_value = mean + 1.96 * sd
+        expected_percentile = 2 * norm.cdf(1.96) - 1  # ≈ 0.95
+        
+        df = pd.DataFrame({"Fiber": [test_value]})
+        
+        import warnings
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            result = calculate_dii_detailed(df)
+        
+        assert abs(result["Fiber_percentile"].iloc[0] - expected_percentile) < 1e-6
+
+    def test_contribution_formula(self):
+        """Test that contribution equals percentile × weight."""
+        ref = load_reference_table()
+        fiber_row = ref[ref["nutrient"] == "Fiber"].iloc[0]
+        weight = fiber_row["weight"]
+        
+        # Use a value that gives a known percentile
+        df = pd.DataFrame({"Fiber": [fiber_row["global_mean"] + fiber_row["global_sd"]]})
+        
+        import warnings
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            result = calculate_dii_detailed(df)
+        
+        percentile = result["Fiber_percentile"].iloc[0]
+        contribution = result["Fiber_contribution"].iloc[0]
+        expected_contribution = percentile * weight
+        
+        assert abs(contribution - expected_contribution) < 1e-10
+
+    def test_detailed_vs_simple_consistency(self):
+        """Test that detailed and simple outputs produce same DII score."""
+        ref = load_reference_table()
+        
+        # Create test data with multiple nutrients
+        data = {"SEQN": [1]}
+        for _, row in ref.iterrows():
+            data[row["nutrient"]] = [row["global_mean"] + row["global_sd"]]
+        
+        df = pd.DataFrame(data)
+        
+        simple_result = calculate_dii(df, id_column="SEQN")
+        detailed_result = calculate_dii(df, id_column="SEQN", detailed=True)
+        
+        simple_score = simple_result["DII_score"].iloc[0]
+        detailed_score = detailed_result["DII_score"].iloc[0]
+        
+        assert abs(simple_score - detailed_score) < 1e-10
+
+
+class TestExtremeValues:
+    """Tests for extreme value handling."""
+
+    def test_extreme_value_warning(self):
+        """Test that extreme values trigger a warning."""
+        import warnings
+        
+        ref = load_reference_table()
+        fiber_row = ref[ref["nutrient"] == "Fiber"].iloc[0]
+        mean, sd = fiber_row["global_mean"], fiber_row["global_sd"]
+        
+        # Create a value > 10 SD from mean
+        extreme_value = mean + 15 * sd
+        
+        df = pd.DataFrame({
+            "SEQN": [1],
+            "Fiber": [extreme_value],
+        })
+        
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            calculate_dii(df, id_column="SEQN", validate_bounds=True)
+            
+            # Check extreme value warning was issued
+            extreme_warnings = [x for x in w if "exceeding" in str(x.message).lower()]
+            assert len(extreme_warnings) > 0
+
+    def test_no_warning_when_validation_disabled(self):
+        """Test that validate_bounds=False suppresses extreme value warnings."""
+        import warnings
+        
+        ref = load_reference_table()
+        fiber_row = ref[ref["nutrient"] == "Fiber"].iloc[0]
+        mean, sd = fiber_row["global_mean"], fiber_row["global_sd"]
+        
+        # Create extreme value
+        extreme_value = mean + 15 * sd
+        
+        df = pd.DataFrame({
+            "SEQN": [1],
+            "Fiber": [extreme_value],
+        })
+        
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            calculate_dii(df, id_column="SEQN", validate_bounds=False)
+            
+            # No extreme value warning should be issued
+            extreme_warnings = [x for x in w if "exceeding" in str(x.message).lower()]
+            assert len(extreme_warnings) == 0
+
+    def test_negative_nutrient_values(self):
+        """Test handling of negative nutrient values (can occur in some datasets)."""
+        import warnings
+        
+        # Some nutrients can technically have negative values in edge cases
+        df = pd.DataFrame({
+            "SEQN": [1],
+            "Fiber": [-5.0],  # Unusual but should still compute
+        })
+        
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            result = calculate_dii(df, id_column="SEQN")
+        
+        # Should complete and produce a numeric result
+        assert not pd.isna(result["DII_score"].iloc[0])
+
+
+class TestNonNumericData:
+    """Tests for handling non-numeric data."""
+
+    def test_string_values_coerced(self):
+        """Test that string values are coerced to numeric with warning."""
+        import warnings
+        
+        df = pd.DataFrame({
+            "SEQN": [1, 2],
+            "Fiber": ["18.8", "invalid"],  # String numbers and invalid
+            "Alcohol": [13.98, 0.0],
+        })
+        
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            result = calculate_dii(df, id_column="SEQN")
+            
+            # Check coercion warning
+            coercion_warnings = [x for x in w if "coerced" in str(x.message).lower()]
+            assert len(coercion_warnings) > 0
+        
+        # Row 1 should have valid score, row 2 might have partial score
+        assert len(result) == 2
+
+
 class TestCLI:
     """Tests for command-line interface."""
 
@@ -353,6 +697,52 @@ class TestCLI:
         assert result.returncode == 0
         # Should list some known nutrients
         assert "Fiber" in result.stdout or "fiber" in result.stdout.lower()
+
+    def test_cli_version(self):
+        """Test that CLI --version works."""
+        import subprocess
+        import sys
+        
+        result = subprocess.run(
+            [sys.executable, "-m", "dii", "--version"],
+            capture_output=True,
+            text=True,
+        )
+        
+        assert result.returncode == 0
+        assert "dii" in result.stdout.lower() or "1." in result.stdout
+
+    def test_cli_process_file(self, tmp_path):
+        """Test CLI processing of a CSV file."""
+        import subprocess
+        import sys
+        
+        # Create test CSV
+        csv_file = tmp_path / "test_input.csv"
+        csv_file.write_text("SEQN,Fiber,Alcohol\n1,18.8,13.98\n2,25.0,0.0")
+        
+        result = subprocess.run(
+            [sys.executable, "-m", "dii", str(csv_file)],
+            capture_output=True,
+            text=True,
+        )
+        
+        assert result.returncode == 0
+        assert "DII" in result.stdout
+
+    def test_cli_invalid_file(self):
+        """Test CLI error handling for invalid file."""
+        import subprocess
+        import sys
+        
+        result = subprocess.run(
+            [sys.executable, "-m", "dii", "nonexistent_file.csv"],
+            capture_output=True,
+            text=True,
+        )
+        
+        assert result.returncode != 0
+        assert "error" in result.stderr.lower() or "not found" in result.stderr.lower()
 
 
 if __name__ == "__main__":

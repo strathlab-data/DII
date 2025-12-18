@@ -1,7 +1,7 @@
 nutrient,weight,global_mean,global_sd
 Alcohol,-0.278,13.98,3.72
-vitamin B12,0.106,5.15,2.7
-vitamin B6,-0.365,1.47,0.74
+Vitamin B12,0.106,5.15,2.7
+Vitamin B6,-0.365,1.47,0.74
 Beta-carotene,-0.584,3718,1720
 Caffeine,-0.11,8.05,6.67
 Carbohydrate,0.097,272.2,40

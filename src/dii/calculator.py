@@ -44,7 +44,7 @@ doi:10.1017/S1368980013002115
 from __future__ import annotations
 
 import warnings
-from typing import List, Optional, Tuple, Union
+from typing import Optional, Union
 
 import numpy as np
 import pandas as pd
@@ -320,6 +320,7 @@ def calculate_dii(
             f"Non-numeric data found in columns {coerced_cols}. "
             "Values were coerced to numeric (non-convertible values become NaN).",
             UserWarning,
+            stacklevel=2,
         )
 
     # === COVERAGE WARNING ===
@@ -333,6 +334,7 @@ def calculate_dii(
             "DII scores may be less reliable with limited nutrients. "
             "Consider adding more nutrient columns if available.",
             UserWarning,
+            stacklevel=2,
         )
 
     # Filter reference to matched nutrients only
@@ -384,6 +386,8 @@ def _calculate_dii_simple(
 
     # Vectorized DII calculation with explicit float64
     total_scores = np.zeros(len(nutrient_data), dtype=FLOAT_DTYPE)
+    # Track if each row has at least one valid (non-NaN) contribution
+    has_valid_data = np.zeros(len(nutrient_data), dtype=bool)
 
     for _, ref_row in reference_df.iterrows():
         nutrient = ref_row[NUTRIENT_COL]
@@ -411,11 +415,16 @@ def _calculate_dii_simple(
         # Compute contribution (weight × percentile)
         contributions = percentiles * weight
 
+        # Track rows with valid data for this nutrient
+        has_valid_data |= ~np.isnan(contributions)
+
         # Add to total (handling NaN)
         total_scores = np.nansum(
             np.stack([total_scores, contributions]), axis=0
         ).astype(FLOAT_DTYPE)
 
+    # Set DII to NaN for rows with no valid nutrient data
+    total_scores = np.where(has_valid_data, total_scores, np.nan)
     result["DII_score"] = total_scores
     return result
 
@@ -464,11 +473,13 @@ def _calculate_dii_detailed(
     # Initialize result with ID column if provided
     result_data = {}
     if id_column and id_column in nutrient_data.columns:
-        result_data[id_column] = nutrient_data[id_column].values
+        result_data[id_column] = nutrient_data[id_column].to_numpy()
 
     # Pre-allocate arrays for all calculations (float64)
     n_rows = len(nutrient_data)
     total_scores = np.zeros(n_rows, dtype=FLOAT_DTYPE)
+    # Track if each row has at least one valid (non-NaN) contribution
+    has_valid_data = np.zeros(n_rows, dtype=bool)
 
     # Calculate for each nutrient
     for _, ref_row in reference_df.iterrows():
@@ -497,11 +508,16 @@ def _calculate_dii_detailed(
         result_data[f"{nutrient}_percentile"] = percentiles
         result_data[f"{nutrient}_contribution"] = contributions
 
+        # Track rows with valid data for this nutrient
+        has_valid_data |= ~np.isnan(contributions)
+
         # Accumulate total (handling NaN)
         total_scores = np.nansum(
             np.stack([total_scores, contributions]), axis=0
         ).astype(FLOAT_DTYPE)
 
+    # Set DII to NaN for rows with no valid nutrient data
+    total_scores = np.where(has_valid_data, total_scores, np.nan)
     result_data["DII_score"] = total_scores
 
     return pd.DataFrame(result_data)
