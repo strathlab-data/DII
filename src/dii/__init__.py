@@ -45,7 +45,12 @@ __author__ = "Ted Clark, Larissa Strath"
 __email__ = "tedclark94@gmail.com"
 
 # Core calculation functions
-from .calculator import calculate_dii, calculate_dii_detailed
+from .calculator import (
+    calculate_dii,
+    calculate_dii_detailed,
+    FLOAT_DTYPE,
+    VALIDATION_TOLERANCE,
+)
 
 # Reference table utilities
 from .reference import load_reference_table, get_available_nutrients
@@ -77,8 +82,11 @@ __all__ = [
     "display_nutrients_table",
     # Visualization
     "plot_dii_distribution",
-    "plot_nutrient_contributions", 
+    "plot_nutrient_contributions",
     "plot_dii_categories_pie",
+    # Constants (for advanced usage)
+    "FLOAT_DTYPE",
+    "VALIDATION_TOLERANCE",
     # Metadata
     "__version__",
 ]

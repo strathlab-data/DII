@@ -6,29 +6,77 @@ This module handles loading and validation of the DII reference table containing
 the 45 food parameters with their inflammatory weights, global means, and
 standard deviations.
 
+Reference Table Structure
+-------------------------
+The reference table contains four columns:
+
+- **nutrient**: Name of the food parameter (e.g., "Fiber", "Alcohol")
+- **weight**: Inflammatory effect score from literature review
+  - Negative values indicate anti-inflammatory effects
+  - Positive values indicate pro-inflammatory effects
+  - Range: approximately -0.785 (Turmeric) to +0.373 (Saturated fat)
+- **global_mean**: Average daily intake from 11 worldwide datasets
+- **global_sd**: Standard deviation of intake across populations
+
+Source
+------
 The reference values are derived from:
+
     Shivappa N, Steck SE, Hurley TG, Hussey JR, Hébert JR. Designing and
     developing a literature-derived, population-based dietary inflammatory
     index. Public Health Nutr. 2014;17(8):1689-1696.
+    doi:10.1017/S1368980013002115
+
+The inflammatory weights were calculated from a literature review of 1,943
+peer-reviewed articles examining diet-inflammation relationships using
+six inflammatory biomarkers: IL-1β, IL-4, IL-6, IL-10, TNF-α, and CRP.
 """
 
 from __future__ import annotations
 
 import importlib.resources
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 import pandas as pd
 
 
-# Column names in the reference table
-NUTRIENT_COL = "nutrient"
-WEIGHT_COL = "weight"
-MEAN_COL = "global_mean"
-SD_COL = "global_sd"
+# =============================================================================
+# COLUMN NAME CONSTANTS
+# =============================================================================
 
-# Required columns for validation
-REQUIRED_COLUMNS = [NUTRIENT_COL, WEIGHT_COL, MEAN_COL, SD_COL]
+#: Column name for nutrient names in reference table
+NUTRIENT_COL: str = "nutrient"
+
+#: Column name for inflammatory weights in reference table
+WEIGHT_COL: str = "weight"
+
+#: Column name for global mean intake in reference table
+MEAN_COL: str = "global_mean"
+
+#: Column name for global standard deviation in reference table
+SD_COL: str = "global_sd"
+
+#: All required columns for a valid reference table
+REQUIRED_COLUMNS: List[str] = [NUTRIENT_COL, WEIGHT_COL, MEAN_COL, SD_COL]
+
+
+# =============================================================================
+# MODULE EXPORTS
+# =============================================================================
+
+__all__ = [
+    # Functions
+    "load_reference_table",
+    "get_available_nutrients",
+    "validate_nutrient_columns",
+    # Column name constants
+    "NUTRIENT_COL",
+    "WEIGHT_COL",
+    "MEAN_COL",
+    "SD_COL",
+    "REQUIRED_COLUMNS",
+]
 
 
 def load_reference_table(custom_path: Optional[str] = None) -> pd.DataFrame:
@@ -135,7 +183,7 @@ def validate_nutrient_columns(
     data_columns: List[str],
     reference_df: Optional[pd.DataFrame] = None,
     verbose: bool = True,
-) -> tuple[List[str], List[str]]:
+) -> Tuple[List[str], List[str]]:
     """
     Validate which nutrients from the input data are available in the reference table.
 
