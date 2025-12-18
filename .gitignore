@@ -109,3 +109,6 @@ env/
 verify_match.py
 
 fresh_test_venv/
+
+# Exploratory work (dev only)
+exploratory/
