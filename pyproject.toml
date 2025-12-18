@@ -100,6 +100,5 @@ push = true
 [tool.bumpver.file_patterns]
 "pyproject.toml" = ['current_version = "{version}"', 'version = "{version}"']
 "src/dii/__init__.py" = ['__version__ = "{version}"']
-"README.md" = ['dii-calculator=={version}', 'version {version}']
 "CITATION.cff" = ['version: {version}']
 
