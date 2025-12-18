@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "dii-calculator"
-version = "1.0.10"
+version = "1.0.11"
 description = "A Python implementation of the Dietary Inflammatory Index (DII) calculator for nutritional epidemiology research"
 readme = "README.md"
 license = "MIT"
@@ -90,7 +90,7 @@ python_files = ["test_*.py"]
 addopts = "-v --tb=short"
 
 [tool.bumpver]
-current_version = "1.0.10"
+current_version = "1.0.11"
 version_pattern = "MAJOR.MINOR.PATCH"
 commit_message = "release: v{new_version}"
 commit = true
