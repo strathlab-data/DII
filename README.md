@@ -245,7 +245,7 @@ print(detailed[contrib_cols].describe())
 
 ### Visualization
 
-Three publication-ready visualization functions are included:
+Three turn-key visualization functions are included in the package (using matplotlib):
 
 ```python
 from dii import (
