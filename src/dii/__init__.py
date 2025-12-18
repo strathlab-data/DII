@@ -40,7 +40,7 @@ Authors
 University of Florida, Department of Health Outcomes and Biomedical Informatics
 """
 
-__version__ = "1.0.9"
+__version__ = "1.0.10"
 __author__ = "Ted Clark, Larissa Strath"
 __email__ = "tedclark94@gmail.com"
 
