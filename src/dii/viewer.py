@@ -9,7 +9,7 @@ from typing import Optional, Union
 
 import pandas as pd
 
-from .reference import load_reference_table, get_available_nutrients
+from .reference import load_reference_table
 
 
 def display_results(
@@ -61,7 +61,7 @@ def _print_summary(results: pd.DataFrame, detailed: bool = False) -> None:
     n = len(scores)
     
     print(f"\nParticipants: {n}")
-    print(f"\nDII Score Summary:")
+    print("\nDII Score Summary:")
     print(f"  Mean:   {scores.mean():>8.3f}")
     print(f"  Std:    {scores.std():>8.3f}")
     print(f"  Min:    {scores.min():>8.3f}")
@@ -69,7 +69,7 @@ def _print_summary(results: pd.DataFrame, detailed: bool = False) -> None:
     print(f"  Median: {scores.median():>8.3f}")
     
     # Interpretation breakdown
-    print(f"\nScore Distribution:")
+    print("\nScore Distribution:")
     anti_inflammatory = (scores < -1).sum()
     neutral = ((scores >= -1) & (scores <= 1)).sum()
     pro_inflammatory = (scores > 1).sum()
@@ -79,7 +79,7 @@ def _print_summary(results: pd.DataFrame, detailed: bool = False) -> None:
     print(f"  Pro-inflammatory (> 1):    {pro_inflammatory:>4} ({pro_inflammatory/n*100:>5.1f}%)")
     
     if detailed and n <= 20:
-        print(f"\nIndividual Scores:")
+        print("\nIndividual Scores:")
         for i, score in enumerate(scores):
             interpretation = _interpret_score(score)
             print(f"  Row {i+1:>3}: {score:>8.3f}  ({interpretation})")

@@ -16,7 +16,6 @@ from pathlib import Path
 
 from .calculator import calculate_dii, calculate_dii_detailed
 from .reader import load_nutrient_data, validate_input_file
-from .reference import get_available_nutrients
 from .viewer import display_results, display_nutrients_table
 from . import __version__
 

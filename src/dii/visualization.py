@@ -8,7 +8,7 @@ Note: matplotlib is a required dependency of the dii-calculator package.
 """
 
 from pathlib import Path
-from typing import Optional, Union, List
+from typing import Optional, Union
 
 import pandas as pd
 import numpy as np
@@ -75,7 +75,8 @@ def plot_dii_distribution(
     )
     
     # Color bars by category
-    for i, patch in enumerate(patches):
+    # Note: BarContainer is iterable but mypy stubs don't reflect this correctly
+    for i, patch in enumerate(list(patches)):  # type: ignore[arg-type]
         bin_center = (bins[i] + bins[i+1]) / 2
         if bin_center < -1:
             patch.set_facecolor('#2ecc71')  # Green - anti-inflammatory
@@ -184,11 +185,11 @@ def plot_nutrient_contributions(
     fig, ax = plt.subplots(figsize=figsize)
     
     # Colors based on direction
-    colors = ['#2ecc71' if v < 0 else '#e74c3c' for v in contributions.values]
+    colors = ['#2ecc71' if v < 0 else '#e74c3c' for v in contributions.to_numpy()]
     
     # Create bars
     y_pos = np.arange(len(contributions))
-    bars = ax.barh(y_pos, contributions.values, color=colors, edgecolor='white', linewidth=0.5)
+    ax.barh(y_pos, contributions.values, color=colors, edgecolor='white', linewidth=0.5)
     
     # Labels
     ax.set_yticks(y_pos)
@@ -273,9 +274,10 @@ def plot_dii_categories_pie(
     
     colors = ['#2ecc71', '#f39c12', '#e74c3c'][:len(categories)]
     
-    wedges, texts, autotexts = ax.pie(
-        categories.values(),
-        labels=categories.keys(),
+    # Note: ax.pie returns 3 values when autopct is provided, but stubs don't reflect this
+    wedges, texts, autotexts = ax.pie(  # type: ignore[misc]
+        list(categories.values()),
+        labels=list(categories.keys()),
         colors=colors,
         autopct=lambda pct: f'{pct:.1f}%\n({int(pct/100*len(scores)):,})',
         startangle=90,
